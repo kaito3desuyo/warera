@@ -1,7 +1,7 @@
-export interface IJapaneseCalendarModel {
+export interface IJapaneseCalendar {
   era: {
-    short: string;
     long: string;
+    short: string;
   };
   startDate: Date;
   endDate: Date | null;

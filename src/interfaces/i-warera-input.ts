@@ -1,4 +1,4 @@
-export interface IDateOfJapaneseCalendar {
+export interface IWareraInput {
   era: string;
   year: number;
   month: number;

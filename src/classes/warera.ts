@@ -1,23 +1,40 @@
-import { IDateOfJapaneseCalendar } from "../interfaces/i-date-of-japanese-calendar";
-import { IJapaneseCalendarModel } from "../interfaces/i-japanese-calendar-model";
-import { calendars } from "../models/japanese-calendar-model";
+import { IJapaneseCalendar } from "../interfaces/i-japanese-calendar";
+import { IJapaneseCalendarDate } from "../interfaces/i-japanese-calendar-date";
+import { IWareraInput } from "../interfaces/i-warera-input";
+import { japaneseCalendars } from "../models/japanese-calendar";
 
 export class Warera {
-  private _value: IDateOfJapaneseCalendar;
+  private readonly _value: IJapaneseCalendarDate;
 
-  private constructor(value: IDateOfJapaneseCalendar) {
-    if (!Warera.isValidDateOfJapaneseCalendar(value)) {
-      throw new Error("正しい和暦による日付ではありません");
-    }
+  private constructor(value: IJapaneseCalendarDate) {
     this._value = value;
   }
 
-  static create(date: IDateOfJapaneseCalendar): Warera {
-    return new Warera(date);
+  /**
+   * Warera InputオブジェクトからWareraクラスを生成
+   * @param date
+   */
+  static createFromWareraInput(date: IWareraInput): Warera {
+    const calendar = Warera._findCalendarByEra(date.era);
+    if (!calendar) {
+      throw new Error("Invalid era name.");
+    }
+
+    const dateOfJapaneseCalendar: IJapaneseCalendarDate = {
+      era: calendar.era,
+      year: date.year,
+      month: date.month,
+      day: date.day
+    };
+    if (!Warera.isValidDateOfJapaneseCalendar(dateOfJapaneseCalendar)) {
+      throw new Error("Invalid japanese calendar date.");
+    }
+
+    return new Warera(dateOfJapaneseCalendar);
   }
 
   /**
-   * Dateクラスから和暦によるクラスを生成
+   * DateクラスからWareraクラスを生成
    * @param date
    */
   static createFromDate(date: Date): Warera {
@@ -26,7 +43,7 @@ export class Warera {
     );
 
     if (!dateOfJapaneseCalendar) {
-      throw new Error("対応範囲外の日付です");
+      throw new Error("Date is out of range.");
     }
 
     return new Warera(dateOfJapaneseCalendar);
@@ -36,7 +53,7 @@ export class Warera {
    * 正しい和暦による日付か？
    * @param date
    */
-  static isValidDateOfJapaneseCalendar(date: IDateOfJapaneseCalendar): boolean {
+  static isValidDateOfJapaneseCalendar(date: IJapaneseCalendarDate): boolean {
     return (
       Warera._isValidYear(date) &&
       Warera._isValidMonth(date) &&
@@ -49,7 +66,7 @@ export class Warera {
    * 正しい年か？
    * @param date
    */
-  private static _isValidYear(date: IDateOfJapaneseCalendar): boolean {
+  private static _isValidYear(date: IJapaneseCalendarDate): boolean {
     return date.year >= 1;
   }
 
@@ -57,7 +74,7 @@ export class Warera {
    * 正しい月か？
    * @param date
    */
-  private static _isValidMonth(date: IDateOfJapaneseCalendar): boolean {
+  private static _isValidMonth(date: IJapaneseCalendarDate): boolean {
     return date.month >= 1 && date.month <= 12;
   }
 
@@ -65,7 +82,7 @@ export class Warera {
    * 正しい日か？
    * @param date
    */
-  private static _isValidDay(date: IDateOfJapaneseCalendar): boolean {
+  private static _isValidDay(date: IJapaneseCalendarDate): boolean {
     return date.day >= 1 && date.day <= 31;
   }
 
@@ -74,9 +91,9 @@ export class Warera {
    * @param date
    */
   private static _isValidDateInJapaneseCalendar(
-    date: IDateOfJapaneseCalendar
+    date: IJapaneseCalendarDate
   ): boolean {
-    const calendar = Warera._findCalendarByDateOfJapaneseCalendar(date);
+    const calendar = Warera._findCalendarByEra(date.era.long);
     if (!calendar) {
       return false;
     }
@@ -100,13 +117,39 @@ export class Warera {
    * 和暦カレンダーから年号を指定して取得する
    * @param date
    */
-  private static _findCalendarByDateOfJapaneseCalendar(
-    date: IDateOfJapaneseCalendar
-  ): IJapaneseCalendarModel | null {
-    if (!date.era || !date.year || !date.month || !date.day) {
+  private static _findCalendarByEra(era: string): IJapaneseCalendar | null {
+    if (!era) {
       return null;
     }
-    return calendars.find(o => o.era.short === date.era) || null;
+
+    let calendar: IJapaneseCalendar | null = null;
+    for (const o of japaneseCalendars) {
+      if (o.era.short === era || o.era.long === era) {
+        calendar = o;
+        break;
+      }
+    }
+
+    return calendar;
+  }
+
+  /**
+   * 和暦カレンダーから西暦による日付を指定して取得する
+   * @param date
+   */
+  private static _findCalendarByDate(date: Date): IJapaneseCalendar | null {
+    let calendar: IJapaneseCalendar | null = null;
+    for (const o of japaneseCalendars) {
+      if (
+        (!o.startDate || o.startDate <= date) &&
+        (!o.endDate || date <= o.endDate)
+      ) {
+        calendar = o;
+        break;
+      }
+    }
+
+    return calendar;
   }
 
   /**
@@ -114,9 +157,9 @@ export class Warera {
    * @param date
    */
   private static _parseDateOfJapaneseCalendarToDate(
-    date: IDateOfJapaneseCalendar
+    date: IJapaneseCalendarDate
   ): Date | null {
-    const calendar = Warera._findCalendarByDateOfJapaneseCalendar(date);
+    const calendar = Warera._findCalendarByEra(date.era.long);
     if (!calendar) {
       return null;
     }
@@ -134,32 +177,40 @@ export class Warera {
    */
   private static _parseDateToDateOfJapaneseCalendar(
     date: Date
-  ): IDateOfJapaneseCalendar | null {
-    const targetDate = date;
+  ): IJapaneseCalendarDate | null {
+    const calendar: IJapaneseCalendar | null = this._findCalendarByDate(date);
+    const era: { long: string; short: string } | null = calendar?.era || null;
 
-    const calendar = calendars.find(o => {
-      return (
-        (!o.startDate || o.startDate <= targetDate) &&
-        (!o.endDate || targetDate <= o.endDate)
-      );
-    });
-
-    if (!calendar) {
+    if (!calendar || !era) {
       return null;
     }
 
     return {
-      era: calendar.era.short,
-      year: targetDate.getFullYear() - calendar.startDate.getFullYear() + 1,
-      month: targetDate.getMonth() + 1,
-      day: targetDate.getDate()
+      era: era,
+      year: date.getFullYear() - calendar.startDate.getFullYear() + 1,
+      month: date.getMonth() + 1,
+      day: date.getDate()
     };
   }
 
   /**
    * 和暦による日付を返す
    */
-  get value(): IDateOfJapaneseCalendar {
+  getJapaneseCalendarDate(): IJapaneseCalendarDate {
     return this._value;
+  }
+
+  /**
+   * 西暦による日付をDateクラスで返す
+   */
+  getDate(): Date | null {
+    return Warera._parseDateOfJapaneseCalendarToDate(this._value);
+  }
+
+  /**
+   * 和暦カレンダーを返す
+   */
+  getJapaneseCalendar(): IJapaneseCalendar | null {
+    return Warera._findCalendarByEra(this._value.era.long);
   }
 }

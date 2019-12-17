@@ -1,9 +1,10 @@
-import { IJapaneseCalendarModel } from "../interfaces/i-japanese-calendar-model";
+import { EJapaneseCalendar } from "../enums/japanese-calendar-era.enum";
+import { IJapaneseCalendar } from "../interfaces/i-japanese-calendar";
 
-export const calendars: IJapaneseCalendarModel[] = [
+export const japaneseCalendars: IJapaneseCalendar[] = [
   {
     era: {
-      short: "M",
+      short: EJapaneseCalendar.MEIJI,
       long: "明治"
     },
     startDate: new Date(1868, 9, 23),
@@ -11,7 +12,7 @@ export const calendars: IJapaneseCalendarModel[] = [
   },
   {
     era: {
-      short: "T",
+      short: EJapaneseCalendar.TAISHO,
       long: "大正"
     },
     startDate: new Date(1912, 6, 30),
@@ -19,7 +20,7 @@ export const calendars: IJapaneseCalendarModel[] = [
   },
   {
     era: {
-      short: "S",
+      short: EJapaneseCalendar.SHOWA,
       long: "昭和"
     },
     startDate: new Date(1926, 11, 25),
@@ -27,7 +28,7 @@ export const calendars: IJapaneseCalendarModel[] = [
   },
   {
     era: {
-      short: "H",
+      short: EJapaneseCalendar.HEISEI,
       long: "平成"
     },
     startDate: new Date(1989, 0, 8),
@@ -35,7 +36,7 @@ export const calendars: IJapaneseCalendarModel[] = [
   },
   {
     era: {
-      short: "R",
+      short: EJapaneseCalendar.REIWA,
       long: "令和"
     },
     startDate: new Date(2019, 4, 1),
