@@ -15,18 +15,15 @@ export class Warera {
    * @param date
    */
   static createFromWareraInput(date: IWareraInput): Warera {
-    const calendar = Warera._findCalendarByEra(date.era);
-    if (!calendar) {
-      throw new Error("Invalid era name.");
+    if (!date.era || !date.year || !date.month || !date.day) {
+      throw new Error("Invalid japanese calendar date.");
     }
 
-    const dateOfJapaneseCalendar: IJapaneseCalendarDate = {
-      era: calendar.era,
-      year: date.year,
-      month: date.month,
-      day: date.day
-    };
-    if (!Warera.isValidDateOfJapaneseCalendar(dateOfJapaneseCalendar)) {
+    const dateOfJapaneseCalendar: IJapaneseCalendarDate = Warera._parseIWareraInputToIJapaneseCalendarDate(
+      date
+    );
+
+    if (!Warera._isValidDateOfJapaneseCalendar(dateOfJapaneseCalendar)) {
       throw new Error("Invalid japanese calendar date.");
     }
 
@@ -49,11 +46,29 @@ export class Warera {
     return new Warera(dateOfJapaneseCalendar);
   }
 
+  private static _parseIWareraInputToIJapaneseCalendarDate(
+    input: IWareraInput
+  ): IJapaneseCalendarDate {
+    const calendar = Warera._findCalendarByEra(input.era);
+    if (!calendar) {
+      throw new Error("Invalid era name.");
+    }
+
+    return {
+      era: calendar.era,
+      year: input.year,
+      month: input.month,
+      day: input.day
+    };
+  }
+
   /**
    * 正しい和暦による日付か？
    * @param date
    */
-  static isValidDateOfJapaneseCalendar(date: IJapaneseCalendarDate): boolean {
+  private static _isValidDateOfJapaneseCalendar(
+    date: IJapaneseCalendarDate
+  ): boolean {
     return (
       Warera._isValidYear(date) &&
       Warera._isValidMonth(date) &&
