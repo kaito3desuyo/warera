@@ -24,6 +24,7 @@ module.exports = {
     filename: "main.js",
     path: path.resolve(__dirname, "dist"),
     library: "Warera",
-    libraryTarget: "umd"
+    libraryTarget: "umd",
+    globalObject: "typeof self !== 'undefined' ? self : this"
   }
 };
