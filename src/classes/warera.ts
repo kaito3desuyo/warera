@@ -2,6 +2,7 @@ import { IJapaneseCalendar } from "../interfaces/i-japanese-calendar";
 import { IJapaneseCalendarDate } from "../interfaces/i-japanese-calendar-date";
 import { IWareraInput } from "../interfaces/i-warera-input";
 import { japaneseCalendars } from "../models/japanese-calendar";
+import { WareraUtil } from "./warera-util";
 
 export class Warera {
   private readonly _value: IJapaneseCalendarDate;
@@ -16,7 +17,7 @@ export class Warera {
    */
   static createFromWareraInput(date: IWareraInput): Warera {
     if (!date.era || !date.year || !date.month || !date.day) {
-      throw new Error("Invalid japanese calendar date.");
+      throw new Error("Invalid argument.");
     }
 
     const dateOfJapaneseCalendar: IJapaneseCalendarDate = Warera._parseIWareraInputToIJapaneseCalendarDate(
@@ -46,6 +47,10 @@ export class Warera {
     return new Warera(dateOfJapaneseCalendar);
   }
 
+  /**
+   * Warera Inputオブジェクトを和暦日付オブジェクトにパースする
+   * @param input
+   */
   private static _parseIWareraInputToIJapaneseCalendarDate(
     input: IWareraInput
   ): IJapaneseCalendarDate {
@@ -227,5 +232,144 @@ export class Warera {
    */
   getJapaneseCalendar(): IJapaneseCalendar | null {
     return Warera._findCalendarByEra(this._value.era.long);
+  }
+
+  /**
+   * 指定した形式でフォーマットする
+   * @param pattern
+   * @param replaceToGanForFirstYear
+   */
+  format(pattern: string, replaceToGanForFirstYear = true): string {
+    if (
+      typeof pattern !== "string" ||
+      typeof replaceToGanForFirstYear !== "boolean"
+    ) {
+      throw new TypeError("Invalid argument.");
+    }
+
+    let returnStr: string = pattern;
+    let date: {
+      gregorian: Date;
+      japanese: IJapaneseCalendarDate;
+    } = {
+      gregorian: this.getDate() as Date,
+      japanese: this.getJapaneseCalendarDate()
+    };
+
+    // 西暦年
+    returnStr = returnStr.replace("YYYY", String(date.gregorian.getFullYear()));
+
+    // 和暦元号
+    returnStr = returnStr.replace("WWW", date.japanese.era.long);
+    returnStr = returnStr.replace("W", date.japanese.era.short);
+
+    // 和暦年
+    // 漢数字（例：平成二十一年）
+    returnStr = returnStr.replace(
+      "kky",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : WareraUtil.parseNumericToKanjiNumeral(date.japanese.year)
+    );
+
+    // 漢数字（例：平成二一年）
+    returnStr = returnStr.replace(
+      "ky",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : WareraUtil.parseNumericToKanjiNumeral(date.japanese.year, false, true)
+    );
+
+    // 大字（例：平成弐拾壱年）
+    returnStr = returnStr.replace(
+      "ddy",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : WareraUtil.parseNumericToKanjiNumeral(date.japanese.year, true)
+    );
+
+    // 大字（例：平成弐壱年）
+    returnStr = returnStr.replace(
+      "dy",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : WareraUtil.parseNumericToKanjiNumeral(date.japanese.year, true, true)
+    );
+
+    // アラビア数字（例：平成08年）
+    returnStr = returnStr.replace(
+      "yy",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : String(date.japanese.year).padStart(2, "0")
+    );
+
+    // アラビア数字（例：平成8年）
+    returnStr = returnStr.replace(
+      "y",
+      date.japanese.year === 1 && replaceToGanForFirstYear
+        ? "元"
+        : String(date.japanese.year)
+    );
+
+    // 月
+    // 漢数字（例：十二月）
+    returnStr = returnStr.replace(
+      "kkM",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.month)
+    );
+    // 漢数字（例：一二月）
+    returnStr = returnStr.replace(
+      "kM",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.month, false, true)
+    );
+    // 大字（例：拾弐月）
+    returnStr = returnStr.replace(
+      "ddM",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.month, true)
+    );
+    // 大字（例：壱弐月）
+    returnStr = returnStr.replace(
+      "dM",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.month, true, true)
+    );
+    // アラビア数字（例：08月）
+    returnStr = returnStr.replace(
+      "MM",
+      String(date.japanese.month).padStart(2, "0")
+    );
+    // アラビア数字（例：8月）
+    returnStr = returnStr.replace("M", String(date.japanese.month));
+
+    // 日
+    // 漢数字（例：十二日）
+    returnStr = returnStr.replace(
+      "kkD",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.day)
+    );
+    // 漢数字（例：一二日）
+    returnStr = returnStr.replace(
+      "kD",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.day, false, true)
+    );
+    // 大字（例：拾弐日）
+    returnStr = returnStr.replace(
+      "ddD",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.day, true)
+    );
+    // 大字（例：壱弐日）
+    returnStr = returnStr.replace(
+      "dD",
+      WareraUtil.parseNumericToKanjiNumeral(date.japanese.day, true, true)
+    );
+    // アラビア数字（例：08日）
+    returnStr = returnStr.replace(
+      "DD",
+      String(date.japanese.day).padStart(2, "0")
+    );
+    // アラビア数字（例：8日）
+    returnStr = returnStr.replace("D", String(date.japanese.day));
+
+    return returnStr;
   }
 }
