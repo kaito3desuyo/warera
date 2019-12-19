@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "",
   "main": "dist/main.js",
+  "types": "./dist/src/main.d.ts",
   "files": [
     "dist"
   ],
