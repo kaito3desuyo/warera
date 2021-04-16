@@ -2,7 +2,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - feature/add-github-actions
+      - master
   workflow_dispatch:
 jobs:
   publish-to-npm:
@@ -21,4 +21,12 @@ jobs:
       - name: Can publish
         run: npx can-npm-publish --verbose
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: Install
+        run : npm install
+        env :
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: Publish
+        run : npm publish
+        env :
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
