@@ -1,0 +1,24 @@
+name: Publish to npm
+on:
+  push:
+    branches:
+      - feature/add-github-actions
+  workflow_dispatch:
+jobs:
+  publish-to-npm:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Use Node.js and setup .npmrc
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+          always-auth : true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - name: Can publish
+        run: npx can-npm-publish --verbose
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
