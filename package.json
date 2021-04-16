@@ -39,8 +39,8 @@
     "ts-loader": "^6.2.2",
     "tslib": "^1.11.1",
     "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack": "^5.33.2",
+    "webpack-cli": "^4.6.0"
   },
   "dependencies": {
     "core-js": "^3.6.5"
