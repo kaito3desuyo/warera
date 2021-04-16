@@ -63,7 +63,7 @@ export class Warera {
       era: calendar.era,
       year: input.year,
       month: input.month,
-      day: input.day
+      day: input.day,
     };
   }
 
@@ -209,7 +209,7 @@ export class Warera {
       era: era,
       year: date.getFullYear() - calendar.startDate.getFullYear() + 1,
       month: date.getMonth() + 1,
-      day: date.getDate()
+      day: date.getDate(),
     };
   }
 
@@ -253,7 +253,7 @@ export class Warera {
       japanese: IJapaneseCalendarDate;
     } = {
       gregorian: this.getDate() as Date,
-      japanese: this.getJapaneseCalendarDate()
+      japanese: this.getJapaneseCalendarDate(),
     };
 
     // 西暦年
