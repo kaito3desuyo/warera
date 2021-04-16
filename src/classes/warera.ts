@@ -25,7 +25,9 @@ export class Warera {
     );
 
     if (!Warera._isValidDateOfJapaneseCalendar(dateOfJapaneseCalendar)) {
-      throw new Error("Invalid japanese calendar date.");
+      throw new RangeError(
+        "The date is not supported. Please enter after September 23, 1868."
+      );
     }
 
     return new Warera(dateOfJapaneseCalendar);
@@ -41,7 +43,9 @@ export class Warera {
     );
 
     if (!dateOfJapaneseCalendar) {
-      throw new Error("Date is out of range.");
+      throw new RangeError(
+        "The date is not supported. Please enter after September 23, 1868."
+      );
     }
 
     return new Warera(dateOfJapaneseCalendar);
@@ -139,17 +143,13 @@ export class Warera {
    */
   private static _findCalendarByEra(era: string): IJapaneseCalendar | null {
     if (!era) {
-      return null;
+      throw new Error("Invalid arguments.");
     }
 
-    let calendar: IJapaneseCalendar | null = null;
-    for (const o of japaneseCalendars) {
-      if (o.era.short === era || o.era.long === era) {
-        calendar = o;
-        break;
-      }
-    }
-
+    const calendar: IJapaneseCalendar | null =
+      japaneseCalendars.find(
+        (o) => o.era.short === era || o.era.long === era
+      ) ?? null;
     return calendar;
   }
 
@@ -158,17 +158,16 @@ export class Warera {
    * @param date
    */
   private static _findCalendarByDate(date: Date): IJapaneseCalendar | null {
-    let calendar: IJapaneseCalendar | null = null;
-    for (const o of japaneseCalendars) {
-      if (
-        (!o.startDate || o.startDate <= date) &&
-        (!o.endDate || date <= o.endDate)
-      ) {
-        calendar = o;
-        break;
-      }
+    if (!date) {
+      throw new Error("Invalid arguments.");
     }
 
+    const calendar: IJapaneseCalendar | null =
+      japaneseCalendars.find(
+        (o) =>
+          (!o.startDate || o.startDate <= date) &&
+          (!o.endDate || date <= o.endDate)
+      ) ?? null;
     return calendar;
   }
 
@@ -244,11 +243,11 @@ export class Warera {
       typeof pattern !== "string" ||
       typeof replaceToGanForFirstYear !== "boolean"
     ) {
-      throw new TypeError("Invalid argument.");
+      throw new Error("Invalid argument.");
     }
 
     let returnStr: string = pattern;
-    let date: {
+    const date: {
       gregorian: Date;
       japanese: IJapaneseCalendarDate;
     } = {
