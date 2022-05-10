@@ -1,18 +1,21 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "lib": ["dom", "esnext"],
     "strict": true,
     "skipLibCheck": true,
-    "declaration": true,
     "pretty": true,
     "newLine": "lf",
-    "outDir": "dist",
-    "sourceMap": true,
+    "outDir": "./dist",
     "downlevelIteration": true,
     "importHelpers": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./types"
+  },
+  "include": ["./src"]
 }
