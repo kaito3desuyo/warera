@@ -13,9 +13,5 @@ export default defineConfig({
     minify: "terser",
     sourcemap: true,
   },
-  plugins: [
-    swc.vite({
-      tsconfigFile: false,
-    }),
-  ],
+  plugins: [swc.vite()],
 });
