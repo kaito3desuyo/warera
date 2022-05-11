@@ -1,4 +1,9 @@
 {
+  "jsc": {
+    "parser": {
+      "syntax": "typescript"
+    }
+  },
   "env": {
     "mode": "usage",
     "coreJs": 3
