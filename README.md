@@ -5,7 +5,7 @@ A lightweight Javascript/Typescript library for mutual conversion Japanese Calen
 ## Documentation
 
 ```
-$ npm i warera
+npm i warera
 ```
 
 ### Gregorian Calendar to Japanese Calendar
@@ -99,7 +99,7 @@ In Japan, the first year when the era begins is sometimes called the "元年".
 When 'replaceToGanForFirstYear' true,
 
 ```
-const date = warera({era: 'R', year: 1, month: 5, day: 1});
+const date = warera({era: 'R', year: 1, month: 5, day: 1}, true);
 date.format('WWWkky年kkM月kkD日') // '令和元年五月一日'
 ```
 
